@@ -1,34 +1,114 @@
-//Laptop computer: adds screen size to other Computer info
-
-public class Laptop extends Computer { //Laptop inherits from Computer
-    String screenSize=null;
-
-    //Constructors
-    public Laptop() {} //No-arg constructor
-
+public final class Laptop {
+    // Laptop-specific field (immutable)
+    private final String screenSize;
+    
+    // Composition: Laptop "has-a" Computer
+    private final Computer computer;
+    
+    // No-arg constructor removed for immutability
+    
+    // Constructor accepting all parameters
     public Laptop(String CPU, String RAM, String disk, String screenSize) {
-        //Inherited from Computer superclass
-        this.CPU=CPU;
-        this.RAM=RAM;
-        this.disk=disk;
-
-        //Only in Laptop subclass
-        this.screenSize=screenSize;
+        // Validate parameters
+        if (screenSize == null || screenSize.trim().isEmpty()) {
+            throw new IllegalArgumentException("Screen size cannot be null or empty");
+        }
+        
+        this.screenSize = screenSize;
+        
+        // Create Computer instance using composition
+        this.computer = new Computer(CPU, RAM, disk);
     }
-
-    //Setter
-    public void setScreenSize(String screenSize) {
-        this.screenSize=screenSize;
-    }
-
-    //Getter
+    
+    // Getter for laptop-specific field
     public String getScreenSize() {
         return this.screenSize;
     }
-
-    //Return formatted version of data
-    public String toString() {
-        return "Type:Laptop\tCPU:" + this.CPU + "\tRAM:" + this.RAM + "\tDisk:" + this.disk + "\tScreen:" + this.screenSize;
+    
+    // Delegate Computer-related method calls to the composed Computer object
+    public String getCPU() {
+        return computer.getCPU();
     }
     
+    public String getRAM() {
+        return computer.getRAM();
+    }
+    
+    public String getDisk() {
+        return computer.getDisk();
+    }
+    
+    // Screen-size-specific getter methods
+    public boolean isLargeScreen() {
+        if (screenSize == null) return false;
+        try {
+            double size = Double.parseDouble(screenSize.replace("\"", "").trim());
+            return size >= 15.0;
+        } catch (NumberFormatException e) {
+            return screenSize.toLowerCase().contains("large") || 
+                   screenSize.toLowerCase().contains("15") ||
+                   screenSize.toLowerCase().contains("17");
+        }
+    }
+    
+    public boolean isSmallScreen() {
+        if (screenSize == null) return false;
+        try {
+            double size = Double.parseDouble(screenSize.replace("\"", "").trim());
+            return size < 14.0;
+        } catch (NumberFormatException e) {
+            return screenSize.toLowerCase().contains("small") || 
+                   screenSize.toLowerCase().contains("13") ||
+                   screenSize.toLowerCase().contains("compact");
+        }
+    }
+    
+    public String getScreenType() {
+        if (screenSize == null) return "Unknown";
+        String lowerScreen = screenSize.toLowerCase();
+        if (lowerScreen.contains("oled") || lowerScreen.contains("amoled")) {
+            return "OLED";
+        } else if (lowerScreen.contains("ips")) {
+            return "IPS";
+        } else if (lowerScreen.contains("tn")) {
+            return "TN";
+        } else {
+            return "Standard LCD";
+        }
+    }
+    
+    // Return formatted version of data (similar to original toString)
+    public String toString() {
+        return "Type:Laptop\tCPU:" + getCPU() + "\tRAM:" + getRAM() + 
+               "\tDisk:" + getDisk() + "\tScreen:" + this.screenSize;
+    }
+    
+    // Optional: Delegate other Computer methods if they exist
+    public void powerOn() {
+        // If Computer has powerOn method, delegate to it
+        // computer.powerOn();
+    }
+    
+    public void powerOff() {
+        // If Computer has powerOff method, delegate to it
+        // computer.powerOff();
+    }
+    
+    // Implement equals and hashCode for proper immutability
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        
+        Laptop laptop = (Laptop) o;
+        return screenSize.equals(laptop.screenSize) && 
+               computer.equals(laptop.computer);
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = screenSize.hashCode();
+        result = 31 * result + computer.hashCode();
+        return result;
+    }
 }
