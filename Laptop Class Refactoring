@@ -1,0 +1,121 @@
+public final class Laptop {
+    // Laptop-specific fields (immutable)
+    private final double screenSize;
+    private final double weight;
+    
+    // Composition: Laptop "has-a" Computer
+    private final Computer computer;
+    
+    // Constructor accepting all parameters
+    public Laptop(String cpu, int ram, int storage, String brand, String model, 
+                  double screenSize, double weight) {
+        // Validate laptop-specific parameters
+        if (screenSize <= 0) {
+            throw new IllegalArgumentException("Screen size must be positive");
+        }
+        if (weight <= 0) {
+            throw new IllegalArgumentException("Weight must be positive");
+        }
+        
+        this.screenSize = screenSize;
+        this.weight = weight;
+        
+        // Create Computer instance using composition
+        this.computer = new Computer(cpu, ram, storage, brand, model);
+    }
+    
+    // Laptop-specific getters
+    public double getScreenSize() {
+        return screenSize;
+    }
+    
+    public double getWeight() {
+        return weight;
+    }
+    
+    // Delegate Computer-related methods to the composed Computer object
+    public String getCpu() {
+        return computer.getCpu();
+    }
+    
+    public int getRam() {
+        return computer.getRam();
+    }
+    
+    public int getStorage() {
+        return computer.getStorage();
+    }
+    
+    public String getBrand() {
+        return computer.getBrand();
+    }
+    
+    public String getModel() {
+        return computer.getModel();
+    }
+    
+    // Screen-size-specific getters
+    public String getScreenSizeCategory() {
+        if (screenSize < 13.0) {
+            return "Compact";
+        } else if (screenSize < 15.0) {
+            return "Standard";
+        } else if (screenSize < 17.0) {
+            return "Large";
+        } else {
+            return "Extra Large";
+        }
+    }
+    
+    public boolean isUltrabook() {
+        return screenSize <= 14.0 && weight <= 1.5;
+    }
+    
+    public boolean isGamingLaptop() {
+        return screenSize >= 15.6 && computer.getRam() >= 16;
+    }
+    
+    // Delegate common computer behaviors
+    public void powerOn() {
+        computer.powerOn();
+    }
+    
+    public void powerOff() {
+        computer.powerOff();
+    }
+    
+    public String getSpecifications() {
+        return computer.getSpecifications() + 
+               String.format(", Screen: %.1f\", Weight: %.2f kg", screenSize, weight);
+    }
+    
+    // Override equals and hashCode to maintain immutability contract
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        
+        Laptop laptop = (Laptop) o;
+        return Double.compare(laptop.screenSize, screenSize) == 0 &&
+               Double.compare(laptop.weight, weight) == 0 &&
+               computer.equals(laptop.computer);
+    }
+    
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(screenSize);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(weight);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + computer.hashCode();
+        return result;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("Laptop[%s, Screen: %.1f\", Weight: %.2f kg]", 
+                           computer.toString(), screenSize, weight);
+    }
+}
