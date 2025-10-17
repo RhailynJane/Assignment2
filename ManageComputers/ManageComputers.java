@@ -3,12 +3,13 @@ import java.util.Scanner;
 
 public class ManageComputers {
 
-    // Validation constants
-    private static final String[] CPU_WHITELIST = { "i5", "i7" };
-    private static final String[] RAM_WHITELIST = { "16", "32" };
-    private static final String[] DISK_WHITELIST = { "512", "1024" };
-    private static final String[] GPU_WHITELIST = { "Nvidia", "AMD" };
-    private static final String[] SCREEN_WHITELIST = { "13", "14", "15", "17" };
+    // Enhanced validation constants
+    private static final String[] COMPANY_WHITELIST = { "Acer", "Asus", "HP", "Dell", "Lenovo" };
+    private static final String[] CPU_WHITELIST = { "i3", "i5", "i7", "i9", "Ryzen 5", "Ryzen 7", "Ryzen 9" };
+    private static final String[] RAM_WHITELIST = { "8", "16", "32", "64" };
+    private static final String[] DISK_WHITELIST = { "256", "512", "1024", "2048" };
+    private static final String[] GPU_WHITELIST = { "Nvidia RTX 3060", "Nvidia RTX 4070", "AMD RX 6700", "Intel Arc" };
+    private static final String[] SCREEN_WHITELIST = { "13", "14", "15", "16", "17", "27", "32" };
 
     public static void main(String args[]) {
         ArrayList<Computer> computers = new ArrayList<Computer>();
@@ -37,12 +38,11 @@ public class ManageComputers {
     }
 
     // -----------------------------
-    // DELETE OPERATION - Refactored for new data structure
+    // DELETE OPERATION
     // -----------------------------
     private static void deleteComputer(ArrayList<Computer> computers, Scanner s) {
         System.out.println("DELETE COMPUTER:-");
 
-        // Edge Case 1: Empty list
         if (computers.isEmpty()) {
             System.out.println("No computers to delete!");
             return;
@@ -52,31 +52,24 @@ public class ManageComputers {
         try {
             int computerListNumberToDelete = Integer.parseInt(s.nextLine());
 
-            // Edge Case 2: Invalid number (negative, zero, or beyond list size)
             if (computerListNumberToDelete >= 1 && computerListNumberToDelete <= computers.size()) {
                 Computer computerToDelete = computers.get(computerListNumberToDelete - 1);
-
-                // Remove the computer and confirm deletion
                 computers.remove(computerListNumberToDelete - 1);
                 System.out.println("Computer deleted successfully: " + computerToDelete.toString());
             } else {
-                // Edge Case 3: Number out of valid range
                 System.out.println("Invalid computer number! Please enter a number between 1 and " + computers.size());
             }
         } catch (NumberFormatException e) {
-            // Edge Case 4: Non-numeric input
             System.out.println("Invalid input! Please enter a valid number.");
         }
     }
 
     // -----------------------------
-    // EDIT OPERATION - Redesigned for immutable objects (Create-New-Object
-    // Approach)
+    // EDIT OPERATION
     // -----------------------------
     private static void editComputer(ArrayList<Computer> computers, Scanner s) {
         System.out.println("EDIT COMPUTER:-");
 
-        // Edge Case 1: Empty list
         if (computers.isEmpty()) {
             System.out.println("No computers to edit!");
             return;
@@ -86,12 +79,10 @@ public class ManageComputers {
         try {
             int computerListNumberToEdit = Integer.parseInt(s.nextLine());
 
-            // Edge Case 2: Invalid number
             if (computerListNumberToEdit >= 1 && computerListNumberToEdit <= computers.size()) {
                 Computer oldComputer = computers.get(computerListNumberToEdit - 1);
                 Computer newComputer = null;
 
-                // Create new object based on type (immutable approach)
                 if (oldComputer instanceof Laptop) {
                     newComputer = createNewLaptopFromEdit((Laptop) oldComputer, s);
                 } else if (oldComputer instanceof Desktop) {
@@ -101,7 +92,6 @@ public class ManageComputers {
                     return;
                 }
 
-                // Replace old object with new one
                 if (newComputer != null) {
                     computers.set(computerListNumberToEdit - 1, newComputer);
                     System.out.println("Computer updated successfully!");
@@ -109,11 +99,9 @@ public class ManageComputers {
                     System.out.println("New: " + newComputer.toString());
                 }
             } else {
-                // Edge Case 3: Number out of range
                 System.out.println("Invalid computer number! Please enter a number between 1 and " + computers.size());
             }
         } catch (NumberFormatException e) {
-            // Edge Case 4: Non-numeric input
             System.out.println("Invalid input! Please enter a valid number.");
         }
     }
@@ -127,22 +115,22 @@ public class ManageComputers {
         System.out.println("Enter new values (press Enter to keep current value):");
 
         // Get current values
+        String currentCompany = oldLaptop.getCompany();
         String currentCPU = oldLaptop.getCPU();
         String currentRAM = oldLaptop.getRAM();
         String currentDisk = oldLaptop.getDisk();
         String currentScreen = oldLaptop.getScreenSize();
 
         // Get new values with validation and default handling
+        String newCompany = getValidatedInputWithDefault(s, "Company", currentCompany, COMPANY_WHITELIST);
         String newCPU = getValidatedInputWithDefault(s, "CPU", currentCPU, CPU_WHITELIST);
-        String newRAM = getValidatedInputWithDefault(s, "RAM", currentRAM, RAM_WHITELIST);
-        String newDisk = getValidatedInputWithDefault(s, "Disk", currentDisk, DISK_WHITELIST);
-        String newScreen = getValidatedInputWithDefault(s, "Screen Size", currentScreen, SCREEN_WHITELIST);
+        String newRAM = getValidatedInputWithDefault(s, "RAM (GB)", currentRAM, RAM_WHITELIST);
+        String newDisk = getValidatedInputWithDefault(s, "Disk (GB)", currentDisk, DISK_WHITELIST);
+        String newScreen = getValidatedInputWithDefault(s, "Screen Size (inches)", currentScreen, SCREEN_WHITELIST);
 
         try {
-            // Create new immutable Laptop object
-            return new Laptop(newCPU, newRAM, newDisk, newScreen);
+            return new Laptop(newCompany, newCPU, newRAM, newDisk, newScreen);
         } catch (IllegalArgumentException e) {
-            // Edge Case: Object creation failure
             System.out.println("Error creating new laptop: " + e.getMessage());
             return null;
         }
@@ -157,22 +145,22 @@ public class ManageComputers {
         System.out.println("Enter new values (press Enter to keep current value):");
 
         // Get current values
+        String currentCompany = oldDesktop.getCompany();
         String currentCPU = oldDesktop.getCPU();
         String currentRAM = oldDesktop.getRAM();
         String currentDisk = oldDesktop.getDisk();
         String currentGPU = oldDesktop.getGPUType();
 
         // Get new values with validation and default handling
+        String newCompany = getValidatedInputWithDefault(s, "Company", currentCompany, COMPANY_WHITELIST);
         String newCPU = getValidatedInputWithDefault(s, "CPU", currentCPU, CPU_WHITELIST);
-        String newRAM = getValidatedInputWithDefault(s, "RAM", currentRAM, RAM_WHITELIST);
-        String newDisk = getValidatedInputWithDefault(s, "Disk", currentDisk, DISK_WHITELIST);
+        String newRAM = getValidatedInputWithDefault(s, "RAM (GB)", currentRAM, RAM_WHITELIST);
+        String newDisk = getValidatedInputWithDefault(s, "Disk (GB)", currentDisk, DISK_WHITELIST);
         String newGPU = getValidatedInputWithDefault(s, "GPU", currentGPU, GPU_WHITELIST);
 
         try {
-            // Create new immutable Desktop object
-            return new Desktop(newCPU, newRAM, newDisk, newGPU);
+            return new Desktop(newCompany, newCPU, newRAM, newDisk, newGPU);
         } catch (IllegalArgumentException e) {
-            // Edge Case: Object creation failure
             System.out.println("Error creating new desktop: " + e.getMessage());
             return null;
         }
@@ -187,12 +175,10 @@ public class ManageComputers {
             System.out.print(fieldName + " [" + defaultValue + "]: ");
             String input = s.nextLine().trim();
 
-            // Allow empty input to keep current value
             if (input.isEmpty()) {
                 return defaultValue;
             }
 
-            // Validate against whitelist
             if (isValidInput(input, whitelist)) {
                 return input;
             } else {
@@ -202,7 +188,7 @@ public class ManageComputers {
     }
 
     // -----------------------------
-    // EXISTING METHODS (Keep these as they are)
+    // MENU AND DISPLAY METHODS
     // -----------------------------
     private static String getMenuSelection(Scanner s) {
         System.out.println("----------");
@@ -248,12 +234,14 @@ public class ManageComputers {
 
     private static void addLaptop(ArrayList<Computer> computers, Scanner s) {
         try {
-            String cpu = getValidatedInput(s, "Enter CPU (i5, i7): ", CPU_WHITELIST);
-            String ram = getValidatedInput(s, "Enter RAM (16, 32): ", RAM_WHITELIST);
-            String disk = getValidatedInput(s, "Enter Disk (512, 1024): ", DISK_WHITELIST);
-            String screenSize = getValidatedInput(s, "Enter screen size (13, 14, 15, 17): ", SCREEN_WHITELIST);
+            String company = getValidatedInput(s, "Enter Company (Acer, Asus, HP, Dell, Lenovo): ", COMPANY_WHITELIST);
+            String cpu = getValidatedInput(s, "Enter CPU (i3, i5, i7, i9, Ryzen 5, Ryzen 7, Ryzen 9): ", CPU_WHITELIST);
+            String ram = getValidatedInput(s, "Enter RAM in GB (8, 16, 32, 64): ", RAM_WHITELIST);
+            String disk = getValidatedInput(s, "Enter Disk in GB (256, 512, 1024, 2048): ", DISK_WHITELIST);
+            String screenSize = getValidatedInput(s, "Enter screen size in inches (13, 14, 15, 16, 17): ",
+                    SCREEN_WHITELIST);
 
-            computers.add(new Laptop(cpu, ram, disk, screenSize));
+            computers.add(new Laptop(company, cpu, ram, disk, screenSize));
             System.out.println("Laptop added successfully!");
         } catch (IllegalArgumentException e) {
             System.out.println("Error adding laptop: " + e.getMessage());
@@ -262,12 +250,14 @@ public class ManageComputers {
 
     private static void addDesktop(ArrayList<Computer> computers, Scanner s) {
         try {
-            String cpu = getValidatedInput(s, "Enter CPU (i5, i7): ", CPU_WHITELIST);
-            String ram = getValidatedInput(s, "Enter RAM (16, 32): ", RAM_WHITELIST);
-            String disk = getValidatedInput(s, "Enter Disk (512, 1024): ", DISK_WHITELIST);
-            String gpu = getValidatedInput(s, "Enter GPU (Nvidia, AMD): ", GPU_WHITELIST);
+            String company = getValidatedInput(s, "Enter Company (Acer, Asus, HP, Dell, Lenovo): ", COMPANY_WHITELIST);
+            String cpu = getValidatedInput(s, "Enter CPU (i3, i5, i7, i9, Ryzen 5, Ryzen 7, Ryzen 9): ", CPU_WHITELIST);
+            String ram = getValidatedInput(s, "Enter RAM in GB (8, 16, 32, 64): ", RAM_WHITELIST);
+            String disk = getValidatedInput(s, "Enter Disk in GB (256, 512, 1024, 2048): ", DISK_WHITELIST);
+            String gpu = getValidatedInput(s, "Enter GPU (Nvidia RTX 3060, Nvidia RTX 4070, AMD RX 6700, Intel Arc): ",
+                    GPU_WHITELIST);
 
-            computers.add(new Desktop(cpu, ram, disk, gpu));
+            computers.add(new Desktop(company, cpu, ram, disk, gpu));
             System.out.println("Desktop added successfully!");
         } catch (IllegalArgumentException e) {
             System.out.println("Error adding desktop: " + e.getMessage());
