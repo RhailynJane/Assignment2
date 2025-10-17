@@ -1,12 +1,12 @@
 /**
  * @author Gabrielle A.
  * @version 1.0
- * Date: 2024-06-10
- * Assignment 2 - Manage Computers
+ *          Date: 2024-06-10
+ *          Assignment 2 - Manage Computers
  *
- * Immutable desktop class using composition over inheritance
+ *          Immutable desktop class using composition over inheritance
  * 
- * Desktop has a Computer and is immutable
+ *          Desktop has a Computer and is immutable
  * 
  */
 
@@ -14,16 +14,11 @@ public final class Desktop {
     // desktop specific : immutable
     private final String gpuType;
 
-    // composition where desktop "has-a" Computer 
+    // composition where desktop "has-a" Computer
     private final Computer computer;
 
     /**
-     * Constructor for immutable Desktop 
-     * 
-     * @param CPU - i5 or i7
-     * @param RAM - 16 or 32
-     * @param disk - 512 or 1024
-     * @param GPU - GPU type: Nvidia or AMD
+     * Constructor for immutable Desktop
      */
 
     public Desktop(String CPU, String RAM, String disk, String GPU) {
@@ -33,7 +28,7 @@ public final class Desktop {
         this.gpuType = validatedGPU(GPU);
     }
 
-    // Validations 
+    // Validations
     private static String validatedGPU(String GPU) {
         if (GPU == null) {
             throw new IllegalArgumentException("GPU Type cannot be null.");
@@ -45,9 +40,10 @@ public final class Desktop {
         }
 
         // for spelling variations
-        if (g.equalsIgnoreCase("Nvidia")) return "Nvidia";
-        if (g.equalsIgnoreCase("AMD")) return "AMD";
-
+        if (g.equalsIgnoreCase("Nvidia"))
+            return "Nvidia";
+        if (g.equalsIgnoreCase("AMD"))
+            return "AMD";
 
         throw new IllegalArgumentException("GPU Type must be either Nvidia or AMD");
 
@@ -66,7 +62,6 @@ public final class Desktop {
         return computer.getDisk();
     }
 
-
     // Desktop specific getters
     public String getGPUType() {
         return this.gpuType;
@@ -82,10 +77,33 @@ public final class Desktop {
 
     @Override
     public String toString() {
-        return "Type:Desktop\tCPU:" + getCPU() 
-        + "\tRAM:" + getRAM() 
-        + "\tDisk:" + getDisk() 
-        + "\tGPU:" + getGPUType();
+        return "Type:Desktop\tCPU:" + getCPU()
+                + "\tRAM:" + getRAM()
+                + "\tDisk:" + getDisk()
+                + "\tGPU:" + getGPUType();
     }
 
+    // Implement equals and hashCode for proper immutability
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Desktop desktop = (Desktop) o;
+        return gpuType.equals(desktop.gpuType) &&
+                getCPU().equals(desktop.getCPU()) &&
+                getRAM().equals(desktop.getRAM()) &&
+                getDisk().equals(desktop.getDisk());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = gpuType.hashCode();
+        result = 31 * result + getCPU().hashCode();
+        result = 31 * result + getRAM().hashCode();
+        result = 31 * result + getDisk().hashCode();
+        return result;
+    }
 }
