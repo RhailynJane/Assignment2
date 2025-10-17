@@ -77,7 +77,7 @@ public final class Desktop {
     }
 
     public boolean isAMD() {
-        return "AMD".equalsIgnoreCase(gpuType);
+        return "AMD".equals(gpuType);
     }
 
     @Override
