@@ -1,25 +1,30 @@
 /**
  * Immutable Computer class.
  *
- * <p>This class uses the <b>Immutable Design Pattern</b>, meaning that
+ * <p>
+ * This class uses the <b>Immutable Design Pattern</b>, meaning that
  * once a Computer object is created, its state cannot be changed.
  *
- * <p><b>Immutable Design Rules Applied:</b>
+ * <p>
+ * <b>Immutable Design Rules Applied:</b>
  * <ul>
- *   <li>The class is declared as {@code final} to prevent subclassing.</li>
- *   <li>All fields are declared {@code private final} so their values cannot change after initialization.</li>
- *   <li>No setter methods are provided — data is assigned only once via the constructor.</li>
- *   <li>Getter methods provide read-only access to field values.</li>
+ * <li>The class is declared as {@code final} to prevent subclassing.</li>
+ * <li>All fields are declared {@code private final} so their values cannot
+ * change after initialization.</li>
+ * <li>No setter methods are provided — data is assigned only once via the
+ * constructor.</li>
+ * <li>Getter methods provide read-only access to field values.</li>
  * </ul>
  *
- * <p><b>Benefits of Immutability:</b>
+ * <p>
+ * <b>Benefits of Immutability:</b>
  * <ul>
- *   <li>Thread-safe without synchronization.</li>
- *   <li>Reliable and easy to reason about ,state never changes.</li>
- *   <li>Ideal for caching and sharing between objects.</li>
+ * <li>Thread-safe without synchronization.</li>
+ * <li>Reliable and easy to reason about ,state never changes.</li>
+ * <li>Ideal for caching and sharing between objects.</li>
  * </ul>
  */
-public final class Computer {
+public class Computer {
 
     // All fields are private and final
     private final String CPU;

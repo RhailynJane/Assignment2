@@ -10,21 +10,17 @@
  * 
  */
 
-public final class Desktop {
+public final class Desktop extends Computer {
     // desktop specific : immutable
     private final String gpuType;
-
-    // composition where desktop "has-a" Computer
-    private final Computer computer;
 
     /**
      * Constructor for immutable Desktop
      */
 
     public Desktop(String CPU, String RAM, String disk, String GPU) {
-
-        // validate inputs ; will throw IllegalArgumentException if invalid
-        this.computer = new Computer(CPU, RAM, disk);
+        // Call super to initialize Computer fields
+        super(CPU, RAM, disk);
         this.gpuType = validatedGPU(GPU);
     }
 
@@ -49,18 +45,7 @@ public final class Desktop {
 
     }
 
-    // Computer getters
-    public String getCPU() {
-        return computer.getCPU();
-    }
-
-    public String getRAM() {
-        return computer.getRAM();
-    }
-
-    public String getDisk() {
-        return computer.getDisk();
-    }
+    // Computer getters are inherited from Computer class
 
     // Desktop specific getters
     public String getGPUType() {
