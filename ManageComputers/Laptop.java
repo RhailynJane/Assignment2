@@ -1,21 +1,18 @@
-public final class Laptop {
+public final class Laptop extends Computer {
     // Laptop-specific field (immutable)
     private final String screenSize;
 
-    // Composition: Laptop "has-a" Computer
-    private final Computer computer;
-
     // Constructor accepting all parameters
     public Laptop(String CPU, String RAM, String disk, String screenSize) {
-        // Validate parameters
+        // Initialize computer fields via super - must be first statement
+        super(CPU, RAM, disk);
+
+        // Validate parameters after super call
         if (screenSize == null || screenSize.trim().isEmpty()) {
             throw new IllegalArgumentException("Screen size cannot be null or empty");
         }
 
         this.screenSize = screenSize;
-
-        // Create Computer instance using composition
-        this.computer = new Computer(CPU, RAM, disk);
     }
 
     // Getter for laptop-specific field
@@ -24,17 +21,7 @@ public final class Laptop {
     }
 
     // Delegate Computer-related method calls to the composed Computer object
-    public String getCPU() {
-        return computer.getCPU();
-    }
-
-    public String getRAM() {
-        return computer.getRAM();
-    }
-
-    public String getDisk() {
-        return computer.getDisk();
-    }
+    // getCPU/getRAM/getDisk are inherited from Computer
 
     // Screen-size-specific getter methods
     public boolean isLargeScreen() {
