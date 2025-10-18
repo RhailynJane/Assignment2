@@ -215,67 +215,98 @@ public class ManageComputers {
         System.out.println("=========");
     }
 
-    private static void addComputer(ArrayList<Computer> computers, Scanner s) {
-        System.out.println("ADDING COMPUTER:-");
-        System.out.println("Enter type of computer to add ('L' for Laptop, 'D' for Desktop):");
-        String computerType = s.nextLine().toLowerCase();
+    } //End of showComputers
 
-        switch (computerType) {
-            case "l":
-                addLaptop(computers, s);
-                break;
-            case "d":
-                addDesktop(computers, s);
-                break;
-            default:
-                System.out.println("Invalid computer type entered!");
-        }
-    }
+    //-----------------------------
+    // Add a new computer (immutable)
+    private static void addComputer(ArrayList<ComputerType> computers, Scanner s) {
+        System.out.println("ADDING COMPUTER:");
+        System.out.print("Enter type ('L' for Laptop, 'D' for Desktop): ");
+        String type = s.nextLine().trim().toLowerCase();
 
-    private static void addLaptop(ArrayList<Computer> computers, Scanner s) {
-        try {
-            String company = getValidatedInput(s, "Enter Company (Acer, Asus, HP, Dell, Lenovo): ", COMPANY_WHITELIST);
-            String cpu = getValidatedInput(s, "Enter CPU (i3, i5, i7, i9, Ryzen 5, Ryzen 7, Ryzen 9): ", CPU_WHITELIST);
-            String ram = getValidatedInput(s, "Enter RAM in GB (8, 16, 32, 64): ", RAM_WHITELIST);
-            String disk = getValidatedInput(s, "Enter Disk in GB (256, 512, 1024, 2048): ", DISK_WHITELIST);
-            String screenSize = getValidatedInput(s, "Enter screen size in inches (13, 14, 15, 16, 17): ",
-                    SCREEN_WHITELIST);
+        String CPU = getValidatedInput(s, "Enter CPU (i5/i7): ", CPU_WHITELIST);
+        String RAM = getValidatedInput(s, "Enter RAM (16/32): ", RAM_WHITELIST);
+        String disk = getValidatedInput(s, "Enter Disk (512/1024): ", DISK_WHITELIST);
 
-            computers.add(new Laptop(company, cpu, ram, disk, screenSize));
-            System.out.println("Laptop added successfully!");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error adding laptop: " + e.getMessage());
-        }
-    }
-
-    private static void addDesktop(ArrayList<Computer> computers, Scanner s) {
-        try {
-            String company = getValidatedInput(s, "Enter Company (Acer, Asus, HP, Dell, Lenovo): ", COMPANY_WHITELIST);
-            String cpu = getValidatedInput(s, "Enter CPU (i3, i5, i7, i9, Ryzen 5, Ryzen 7, Ryzen 9): ", CPU_WHITELIST);
-            String ram = getValidatedInput(s, "Enter RAM in GB (8, 16, 32, 64): ", RAM_WHITELIST);
-            String disk = getValidatedInput(s, "Enter Disk in GB (256, 512, 1024, 2048): ", DISK_WHITELIST);
-            String gpu = getValidatedInput(s, "Enter GPU (Nvidia RTX 3060, Nvidia RTX 4070, AMD RX 6700, Intel Arc): ",
-                    GPU_WHITELIST);
-
-            computers.add(new Desktop(company, cpu, ram, disk, gpu));
-            System.out.println("Desktop added successfully!");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error adding desktop: " + e.getMessage());
-        }
-    }
-
-    private static String getValidatedInput(Scanner s, String prompt, String[] whitelist) {
-        String input = "";
-        while (true) {
-            System.out.print(prompt);
-            input = s.nextLine().trim();
-            if (isValidInput(input, whitelist)) {
-                return input;
-            } else {
-                System.out.println("Invalid input! Please enter one of: " + String.join(", ", whitelist));
+        switch (type) {
+            case "l" -> {
+                System.out.print("Enter screen size (e.g. 15\" IPS): ");
+                String screen = s.nextLine();
+                computers.add(new Laptop(CPU, RAM, disk, screen));
             }
+            case "d" -> {
+                String GPU = getValidatedInput(s, "Enter GPU (Nvidia/AMD): ", GPU_WHITELIST);
+                computers.add(new Desktop(CPU, RAM, disk, GPU));
+            }
+            default -> System.out.println("Invalid type entered!");
         }
     }
+
+    //-----------------------------
+    // Delete a computer
+    private static void deleteComputer(ArrayList<ComputerType> computers, Scanner s) {
+        System.out.println("DELETE COMPUTER:");
+        System.out.print("Enter number of computer to delete: ");
+
+        try {
+            int num = Integer.parseInt(s.nextLine());
+            if (num >= 1 && num <= computers.size()) {
+                computers.remove(num - 1);
+                System.out.println("Computer deleted.");
+            } else {
+                System.out.println("Invalid number!");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input! Please enter a valid number.");
+        }
+    }
+
+    //-----------------------------
+    // Edit a computer (replace the immutable object)
+    private static void editComputer(ArrayList<ComputerType> computers, Scanner s) {
+        System.out.println("EDIT COMPUTER:");
+        System.out.print("Enter number of computer to edit: ");
+
+        try {
+            int num = Integer.parseInt(s.nextLine());
+            if (num < 1 || num > computers.size()) {
+                System.out.println("Invalid number!");
+                return;
+            }
+
+            ComputerType old = computers.get(num - 1);
+            System.out.println("Editing: " + old);
+
+            // Gather new values
+            String CPU = getValidatedInput(s, "Enter new CPU (i5/i7): ", CPU_WHITELIST);
+            String RAM = getValidatedInput(s, "Enter new RAM (16/32): ", RAM_WHITELIST);
+            String disk = getValidatedInput(s, "Enter new Disk (512/1024): ", DISK_WHITELIST);
+
+            if (old instanceof Laptop) {
+                System.out.print("Enter new screen size: ");
+                String screen = s.nextLine();
+                computers.set(num - 1, new Laptop(CPU, RAM, disk, screen));
+            } else if (old instanceof Desktop) {
+                String GPU = getValidatedInput(s, "Enter new GPU (Nvidia/AMD): ", GPU_WHITELIST);
+                computers.set(num - 1, new Desktop(CPU, RAM, disk, GPU));
+            }
+
+            System.out.println("Computer updated successfully.");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input!");
+        }
+    } //End of editComputer
+
+    //-----------------------------
+    //Helper method to get data common to Laptop and Desktop (CPU, RAM and disk) objects. Returns a Computer-type object
+    //holding these values as attribues
+    private static Computer getComputerData(Scanner s) {
+        String CPU="";
+        String RAM="";
+        String disk="";
+
+        System.out.print("Enter CPU:");
+        CPU = s.nextLine();
 
     private static boolean isValidInput(String input, String[] whitelist) {
         for (String validValue : whitelist) {
