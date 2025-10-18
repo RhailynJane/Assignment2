@@ -1,106 +1,219 @@
-//Manage Computers program: maintains an ArrayList of Computer objects, 
-//can be either Laptop or Desktop, but never just Computer-type objects themselves
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ManageComputers {
 
-    // Added constants to ManageComputers class
-    private static final String[] CPU_WHITELIST = {"i5", "i7"};
-    private static final String[] RAM_WHITELIST = {"16", "32"};
-    private static final String[] DISK_WHITELIST = {"512", "1024"};
-    private static final String[] GPU_WHITELIST = {"Nvidia", "AMD"};
-    private static final String[] SCREEN_WHITELIST = {"13", "14"};
+    // Enhanced validation constants
+    private static final String[] COMPANY_WHITELIST = { "Acer", "Asus", "HP", "Dell", "Lenovo" };
+    private static final String[] CPU_WHITELIST = { "i3", "i5", "i7", "i9", "Ryzen 5", "Ryzen 7", "Ryzen 9" };
+    private static final String[] RAM_WHITELIST = { "8", "16", "32", "64" };
+    private static final String[] DISK_WHITELIST = { "256", "512", "1024", "2048" };
+    private static final String[] GPU_WHITELIST = { "Nvidia RTX 3060", "Nvidia RTX 4070", "AMD RX 6700", "Intel Arc" };
+    private static final String[] SCREEN_WHITELIST = { "13", "14", "15", "16", "17", "27", "32" };
 
     public static void main(String args[]) {
-
-        //This ArrayList will hold all the computers in the system. Note that the type of objects expected in this
-        //ArrayList are Computer, not Laptop or Desktop, but since those are subclasses of Computer they can be
-        //stored in an ArrayLiust<Computer> anyway.
-        ArrayList<Computer> computers = new ArrayList<Computer>(); 
-
+        ArrayList<Computer> computers = new ArrayList<Computer>();
         Scanner s = new Scanner(System.in);
-        String menuOption="";
+        String menuOption = "";
 
-        do { //Start of main program loop
-
-            //Show computer data in ArrayList<Computer>
-            showComputers(computers); 
-
-            //Display menu and return menu option selected by the user
+        do {
+            showComputers(computers);
             menuOption = getMenuSelection(s);
 
-            switch(menuOption) {
-                //Add new computer
-                case "a": 
-
-                    addComputer(computers,s);
-
+            switch (menuOption) {
+                case "a":
+                    addComputer(computers, s);
                     break;
-
-                //Delete a computer    
-                case "d": 
-
-                    deleteComputer(computers,s);
-
+                case "d":
+                    deleteComputer(computers, s);
                     break;
-
-                //Edit a computer    
-                case "e": 
-
+                case "e":
                     editComputer(computers, s);
-
                     break;
-
             }
 
-        } while ( ! menuOption.equals("x") ); //Stop when "x" is entered
+        } while (!menuOption.equals("x"));
 
-        s.close(); //Close keyboard scanner
+        s.close();
+    }
 
-    } //End of main
+    // -----------------------------
+    // DELETE OPERATION
+    // -----------------------------
+    private static void deleteComputer(ArrayList<Computer> computers, Scanner s) {
+        System.out.println("DELETE COMPUTER:-");
 
-    //-----------------------------
-    //Display menu and get user selection, return it
+        if (computers.isEmpty()) {
+            System.out.println("No computers to delete!");
+            return;
+        }
+
+        System.out.print("Enter number of computer to delete: ");
+        try {
+            int computerListNumberToDelete = Integer.parseInt(s.nextLine());
+
+            if (computerListNumberToDelete >= 1 && computerListNumberToDelete <= computers.size()) {
+                Computer computerToDelete = computers.get(computerListNumberToDelete - 1);
+                computers.remove(computerListNumberToDelete - 1);
+                System.out.println("Computer deleted successfully: " + computerToDelete.toString());
+            } else {
+                System.out.println("Invalid computer number! Please enter a number between 1 and " + computers.size());
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input! Please enter a valid number.");
+        }
+    }
+
+    // -----------------------------
+    // EDIT OPERATION
+    // -----------------------------
+    private static void editComputer(ArrayList<Computer> computers, Scanner s) {
+        System.out.println("EDIT COMPUTER:-");
+
+        if (computers.isEmpty()) {
+            System.out.println("No computers to edit!");
+            return;
+        }
+
+        System.out.print("Enter number of computer to edit: ");
+        try {
+            int computerListNumberToEdit = Integer.parseInt(s.nextLine());
+
+            if (computerListNumberToEdit >= 1 && computerListNumberToEdit <= computers.size()) {
+                Computer oldComputer = computers.get(computerListNumberToEdit - 1);
+                Computer newComputer = null;
+
+                if (oldComputer instanceof Laptop) {
+                    newComputer = createNewLaptopFromEdit((Laptop) oldComputer, s);
+                } else if (oldComputer instanceof Desktop) {
+                    newComputer = createNewDesktopFromEdit((Desktop) oldComputer, s);
+                } else {
+                    System.out.println("Unknown computer type!");
+                    return;
+                }
+
+                if (newComputer != null) {
+                    computers.set(computerListNumberToEdit - 1, newComputer);
+                    System.out.println("Computer updated successfully!");
+                    System.out.println("Old: " + oldComputer.toString());
+                    System.out.println("New: " + newComputer.toString());
+                }
+            } else {
+                System.out.println("Invalid computer number! Please enter a number between 1 and " + computers.size());
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input! Please enter a valid number.");
+        }
+    }
+
+    // -----------------------------
+    // CREATE-NEW-OBJECT APPROACH FOR LAPTOP EDITING
+    // -----------------------------
+    private static Laptop createNewLaptopFromEdit(Laptop oldLaptop, Scanner s) {
+        System.out.println("EDITING LAPTOP (Create New Object Approach):");
+        System.out.println("Current: " + oldLaptop.toString());
+        System.out.println("Enter new values (press Enter to keep current value):");
+
+        // Get current values
+        String currentCompany = oldLaptop.getCompany();
+        String currentCPU = oldLaptop.getCPU();
+        String currentRAM = oldLaptop.getRAM();
+        String currentDisk = oldLaptop.getDisk();
+        String currentScreen = oldLaptop.getScreenSize();
+
+        // Get new values with validation and default handling
+        String newCompany = getValidatedInputWithDefault(s, "Company", currentCompany, COMPANY_WHITELIST);
+        String newCPU = getValidatedInputWithDefault(s, "CPU", currentCPU, CPU_WHITELIST);
+        String newRAM = getValidatedInputWithDefault(s, "RAM (GB)", currentRAM, RAM_WHITELIST);
+        String newDisk = getValidatedInputWithDefault(s, "Disk (GB)", currentDisk, DISK_WHITELIST);
+        String newScreen = getValidatedInputWithDefault(s, "Screen Size (inches)", currentScreen, SCREEN_WHITELIST);
+
+        try {
+            return new Laptop(newCompany, newCPU, newRAM, newDisk, newScreen);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error creating new laptop: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // -----------------------------
+    // CREATE-NEW-OBJECT APPROACH FOR DESKTOP EDITING
+    // -----------------------------
+    private static Desktop createNewDesktopFromEdit(Desktop oldDesktop, Scanner s) {
+        System.out.println("EDITING DESKTOP (Create New Object Approach):");
+        System.out.println("Current: " + oldDesktop.toString());
+        System.out.println("Enter new values (press Enter to keep current value):");
+
+        // Get current values
+        String currentCompany = oldDesktop.getCompany();
+        String currentCPU = oldDesktop.getCPU();
+        String currentRAM = oldDesktop.getRAM();
+        String currentDisk = oldDesktop.getDisk();
+        String currentGPU = oldDesktop.getGPUType();
+
+        // Get new values with validation and default handling
+        String newCompany = getValidatedInputWithDefault(s, "Company", currentCompany, COMPANY_WHITELIST);
+        String newCPU = getValidatedInputWithDefault(s, "CPU", currentCPU, CPU_WHITELIST);
+        String newRAM = getValidatedInputWithDefault(s, "RAM (GB)", currentRAM, RAM_WHITELIST);
+        String newDisk = getValidatedInputWithDefault(s, "Disk (GB)", currentDisk, DISK_WHITELIST);
+        String newGPU = getValidatedInputWithDefault(s, "GPU", currentGPU, GPU_WHITELIST);
+
+        try {
+            return new Desktop(newCompany, newCPU, newRAM, newDisk, newGPU);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error creating new desktop: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // -----------------------------
+    // INPUT VALIDATION INTEGRATION FOR EDIT PROCESS
+    // -----------------------------
+    private static String getValidatedInputWithDefault(Scanner s, String fieldName, String defaultValue,
+            String[] whitelist) {
+        while (true) {
+            System.out.print(fieldName + " [" + defaultValue + "]: ");
+            String input = s.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return defaultValue;
+            }
+
+            if (isValidInput(input, whitelist)) {
+                return input;
+            } else {
+                System.out.println("Invalid " + fieldName + "! Must be one of: " + String.join(", ", whitelist));
+            }
+        }
+    }
+
+    // -----------------------------
+    // MENU AND DISPLAY METHODS
+    // -----------------------------
     private static String getMenuSelection(Scanner s) {
-        String menuOption="";
-
-        //Display menu options on-screen
         System.out.println("----------");
         System.out.println("A) Add Computer");
         System.out.println("D) Delete Computer");
         System.out.println("E) Edit Computer");
-        System.out.println("X) eXit");
+        System.out.println("X) exit");
         System.out.println("----------");
+        System.out.print("Enter menu selection: ");
+        return s.nextLine().toLowerCase();
+    }
 
-        //Get menu selection from keyboard
-        System.out.print("Enter menu selection:");
-        menuOption = s.nextLine();
-
-        menuOption = menuOption.toLowerCase(); //Make lower case for comparison purposes
-
-        return menuOption;
-    } //End of getMenuSelection
-
-    //-----------------------------
-    //Show data for all laptops and desktops stored in ArrayList<Computer> create in main() method
     private static void showComputers(ArrayList<Computer> computers) {
-        int computerListNumber=0; //This variable is used to hold the "list number" for each computer, starting at 1.
-
         System.out.println("=========");
-
         System.out.println("LIST OF COMPUTERS:-");
 
-        for (Computer c: computers) {
-
-            computerListNumber++; //Increment list number for each computer
-
-            //Call overridden toString() method for current object to get and display its data
-            System.out.println(computerListNumber + ": " + c.toString());
+        if (computers.isEmpty()) {
+            System.out.println("No computers in the system.");
+        } else {
+            for (int i = 0; i < computers.size(); i++) {
+                System.out.println((i + 1) + ": " + computers.get(i).toString());
+            }
         }
-
         System.out.println("=========");
+    }
 
     } //End of showComputers
 
@@ -195,22 +308,6 @@ public class ManageComputers {
         System.out.print("Enter CPU:");
         CPU = s.nextLine();
 
-        System.out.print("Enter RAM:");
-        RAM = s.nextLine();
-
-        System.out.print("Enter Disk:");
-        disk = s.nextLine();
-
-        return new Computer(CPU,RAM,disk);
-
-    } //End of getComputerData
-
-    /**
-     * Validates input against a whitelist array
-     * @param input The user input to validate
-     * @param whitelist Array of valid values
-     * @return true if input is in whitelist, false otherwise
-     */
     private static boolean isValidInput(String input, String[] whitelist) {
         for (String validValue : whitelist) {
             if (input.equals(validValue)) {
@@ -218,38 +315,5 @@ public class ManageComputers {
             }
         }
         return false;
-    } //End of isValidInput
-
-    /**
-     * Gets validated input from user, keeps prompting until valid
-     * @param s Scanner object
-     * @param prompt Message to display to user
-     * @param whitelist Array of valid values
-     * @return Valid user input
-     */
-    private static String getValidatedInput(Scanner s, String prompt, String[] whitelist) {
-        String input = "";
-        boolean valid = false;
-
-        while (!valid) {
-            System.out.print(prompt);
-            input = s.nextLine();
-
-            if (isValidInput(input, whitelist)) {
-                valid = true;
-            } else {
-                System.out.println("Invalid input! Please enter one of the following:");
-                System.out.print("Valid options: ");
-                for (int i = 0; i < whitelist.length; i++) {
-                    System.out.print(whitelist[i]);
-                    if (i < whitelist.length - 1) {
-                        System.out.print(", ");
-                    }
-                }
-                System.out.println();
-            }
-        }
-        return input;
-    } //End of getValidatedInput
-
-} //End of ManageComputer class
+    }
+}
