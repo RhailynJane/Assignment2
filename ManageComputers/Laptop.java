@@ -1,9 +1,26 @@
-public class Laptop extends Computer {
-    private String screenSize;
+// Laptop.java
+/**
+ * Immutable Laptop class using composition with Computer.
+ * Adds Screen Size attribute and delegates core data to its Computer instance.
+ */
+public final class Laptop implements ComputerItem {
+    private final Computer computer;
+    private final String screenSize;
 
-    public Laptop(String company, String CPU, String RAM, String disk, String screenSize) {
-        super(company, CPU, RAM, disk);
+    public Laptop(Computer computer, String screenSize) {
+        if (computer == null || screenSize == null) {
+            throw new IllegalArgumentException("Parameters cannot be null");
+        }
+        this.computer = computer;
         this.screenSize = screenSize;
+    }
+
+    public Laptop(String CPU, String RAM, String disk, String screenSize) {
+        this(new Computer(CPU, RAM, disk), screenSize);
+    }
+
+    public Computer getComputer() {
+        return computer;
     }
 
     public String getScreenSize() {
@@ -12,7 +29,9 @@ public class Laptop extends Computer {
 
     @Override
     public String toString() {
-        return String.format("Laptop [Company: %s, CPU: %s, RAM: %sGB, Disk: %sGB, Screen: %s inches]",
-                company, CPU, RAM, disk, screenSize);
+        return "Type:Laptop\tCPU:" + computer.getCPU() + 
+               "\tRAM:" + computer.getRAM() + 
+               "\tDisk:" + computer.getDisk() + 
+               "\tScreen:" + screenSize;
     }
 }
